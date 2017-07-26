@@ -1,2 +1,2 @@
-# NeteasyMusicLrcHelper
-Desktop lyrics for NeteasyMusic UWP
+# NeteaseMusicLrcHelper
+Desktop lyrics for NeteaseMusic UWP
