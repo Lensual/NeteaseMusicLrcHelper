@@ -14,6 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Timers;
 
 namespace NeteaseMusicLrcHelper
 {
@@ -43,11 +44,11 @@ namespace NeteaseMusicLrcHelper
                 if (module.ModuleName == "NeteaseMusic.dll") { NeteaseMusicDLL = module; }
             }
 
+
             //Read LRC
             this.text.Text = ReadLRC();
-            
-            
-            
+
+
         }
 
         private string ReadLRC()
