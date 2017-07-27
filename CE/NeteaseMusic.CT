@@ -4,7 +4,7 @@
     <CheatEntry>
       <ID>7</ID>
       <Description>"指针扫描结果"</Description>
-      <LastState RealAddress="23DD790AFFC"/>
+      <LastState RealAddress="1EE1693089C"/>
       <VariableType>String</VariableType>
       <Length>36</Length>
       <Unicode>1</Unicode>
@@ -19,7 +19,7 @@
     <CheatEntry>
       <ID>8</ID>
       <Description>"指针扫描结果"</Description>
-      <LastState RealAddress="23DD790AFFC"/>
+      <LastState RealAddress="1EE1693089C"/>
       <VariableType>String</VariableType>
       <Length>36</Length>
       <Unicode>1</Unicode>
@@ -32,23 +32,9 @@
       </Offsets>
     </CheatEntry>
     <CheatEntry>
-      <ID>40</ID>
-      <Description>"指针扫描结果"</Description>
-      <LastState Value="0" RealAddress="23DF26D8CB8"/>
-      <VariableType>Double</VariableType>
-      <Address>"NeteaseMusic.dll"+00B0B838</Address>
-      <Offsets>
-        <Offset>1A0</Offset>
-        <Offset>10</Offset>
-        <Offset>40</Offset>
-        <Offset>0</Offset>
-        <Offset>588</Offset>
-      </Offsets>
-    </CheatEntry>
-    <CheatEntry>
       <ID>42</ID>
       <Description>"指针扫描结果"</Description>
-      <LastState RealAddress="23DD7F0D264"/>
+      <LastState RealAddress="1EE17438B6C"/>
       <VariableType>String</VariableType>
       <Length>868</Length>
       <Unicode>1</Unicode>
@@ -64,19 +50,9 @@
       </Offsets>
     </CheatEntry>
     <CheatEntry>
-      <ID>43</ID>
-      <Description>"没有描述"</Description>
-      <VariableType>String</VariableType>
-      <Length>26</Length>
-      <Unicode>1</Unicode>
-      <CodePage>0</CodePage>
-      <ZeroTerminate>1</ZeroTerminate>
-      <Address>24680582CEC</Address>
-    </CheatEntry>
-    <CheatEntry>
       <ID>44</ID>
       <Description>"指针扫描结果"</Description>
-      <LastState RealAddress="23DD7F0FC9C"/>
+      <LastState RealAddress="1EE1743930C"/>
       <VariableType>String</VariableType>
       <Length>868</Length>
       <Unicode>1</Unicode>
@@ -94,7 +70,7 @@
     <CheatEntry>
       <ID>45</ID>
       <Description>"指针扫描结果"</Description>
-      <LastState RealAddress="23DD7F0FC9C"/>
+      <LastState RealAddress="1EE1743930C"/>
       <VariableType>String</VariableType>
       <Length>26</Length>
       <Unicode>1</Unicode>
@@ -112,7 +88,7 @@
     <CheatEntry>
       <ID>46</ID>
       <Description>"指针扫描结果"</Description>
-      <LastState RealAddress="23DD7F0FC9C"/>
+      <LastState RealAddress="1EE1743930C"/>
       <VariableType>String</VariableType>
       <Length>26</Length>
       <Unicode>1</Unicode>
@@ -130,7 +106,7 @@
     <CheatEntry>
       <ID>48</ID>
       <Description>"指针扫描结果"</Description>
-      <LastState RealAddress="23DD7F0FC9C"/>
+      <LastState RealAddress="1EE1743930C"/>
       <VariableType>String</VariableType>
       <Length>26</Length>
       <Unicode>1</Unicode>
@@ -143,6 +119,20 @@
         <Offset>8</Offset>
         <Offset>A0</Offset>
         <Offset>38</Offset>
+      </Offsets>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>49</ID>
+      <Description>"指针扫描结果"</Description>
+      <LastState Value="93123.7629" RealAddress="1EE36621A08"/>
+      <VariableType>Double</VariableType>
+      <Address>"NeteaseMusic.dll"+00B12EE0</Address>
+      <Offsets>
+        <Offset>30</Offset>
+        <Offset>168</Offset>
+        <Offset>E0</Offset>
+        <Offset>678</Offset>
+        <Offset>180</Offset>
       </Offsets>
     </CheatEntry>
   </CheatEntries>
