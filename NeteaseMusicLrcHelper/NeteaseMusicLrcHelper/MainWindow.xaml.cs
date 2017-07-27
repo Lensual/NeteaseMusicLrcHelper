@@ -47,8 +47,12 @@ namespace NeteaseMusicLrcHelper
 
             //Read LRC
             this.text.Text = ReadLRC();
+            this.text2.Text = ReadTLRC();
 
-
+            //LRC Helper
+            LrcHelper.Parse(ReadLRC());
+            
+            
         }
 
         private string ReadLRC()
@@ -61,20 +65,32 @@ namespace NeteaseMusicLrcHelper
             Offsets.Add(0x8);
             Offsets.Add(0x198);
             Offsets.Add(0xC);
-            Int64 lrcAddr = MemHelper.CalcAddr(NeteaseMusicProcess.Handle, NeteaseMusicDLL.BaseAddress.ToInt64(),Offsets);
-            //Reading
-            List<byte> lrc = new List<byte>();
-            byte[] buffer = new byte[2];
-            IntPtr p = (IntPtr)lrcAddr;
-            do
-            {
-                MemHelper.ReadProcessMemory(NeteaseMusicProcess.Handle, p, Marshal.UnsafeAddrOfPinnedArrayElement(buffer, 0), 2, IntPtr.Zero);
-                lrc.AddRange(buffer);
-                p = IntPtr.Add(p, 2);
-            } while (!(buffer[0] == 0 && buffer[1] == 0 || lrc.Count >= 4096));
-
-            return Encoding.Unicode.GetString(lrc.ToArray());
+            return MemHelper.ReadString(NeteaseMusicProcess.Handle, NeteaseMusicDLL.BaseAddress.ToInt64(), Offsets);
         }
+
+        private string ReadTitle()
+        {
+            //准备指针
+            List<Int64> Offsets = new List<Int64>();
+            Offsets.Add(0x00B0B248);
+            Offsets.Add(0xF0);
+            Offsets.Add(0xC);
+            return MemHelper.ReadString(NeteaseMusicProcess.Handle, NeteaseMusicDLL.BaseAddress.ToInt64(), Offsets);
+        }
+
+        private string ReadTLRC()
+        {
+            //准备指针
+            List<Int64> Offsets = new List<Int64>();
+            Offsets.Add(0x00B13588);
+            Offsets.Add(0x30);
+            Offsets.Add(0xA0);
+            Offsets.Add(0x8);
+            Offsets.Add(0x1A0);
+            Offsets.Add(0xC);
+            return MemHelper.ReadString(NeteaseMusicProcess.Handle, NeteaseMusicDLL.BaseAddress.ToInt64(), Offsets);
+        }
+        
 
     }
 }

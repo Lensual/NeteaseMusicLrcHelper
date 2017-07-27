@@ -47,6 +47,23 @@ namespace NeteaseMusicLrcHelper
             }
             return BaseAddr + Offsets[0];
         }
+        //ReadString
+        public static string ReadString(IntPtr lpProcess,Int64 BaseAddr, List<Int64> Offsets)
+        {
+            //CalcAddress
+            IntPtr p = (IntPtr)CalcAddr(lpProcess, BaseAddr, Offsets);
+            //Reading 2byte loop
+            List<byte> lst = new List<byte>();
+            byte[] buffer = new byte[2];
+            while(true)
+            {
+                MemHelper.ReadProcessMemory(lpProcess, p, Marshal.UnsafeAddrOfPinnedArrayElement(buffer, 0), 2, IntPtr.Zero);
+                if (buffer[0] == 0 && buffer[1] == 0 || lst.Count >= 10240) { break; }
+                lst.AddRange(buffer);
+                p = IntPtr.Add(p, 2);
+            }
 
+            return Encoding.Unicode.GetString(lst.ToArray());
+        }
     }
 }
