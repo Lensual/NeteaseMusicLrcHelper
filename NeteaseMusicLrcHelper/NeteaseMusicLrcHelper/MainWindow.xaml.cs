@@ -46,12 +46,14 @@ namespace NeteaseMusicLrcHelper
 
 
             //Read LRC
-            this.text.Text = ReadLRC();
-            this.text2.Text = ReadTLRC();
-
-            //LRC Helper
-            LrcHelper.Parse(ReadLRC());
-            
+            text.Text = ReadLRC();
+            string strlrc = "";
+            LrcHelper.LRC lrc = LrcHelper.Parse(ReadLRC());
+            foreach (LrcHelper.LrcLine item in lrc.LrcLines)
+            {
+                strlrc += "[" + item.StartTime + "]" + item.Text + "\r\n";
+            }
+            this.text2.Text = strlrc;
             
         }
 
