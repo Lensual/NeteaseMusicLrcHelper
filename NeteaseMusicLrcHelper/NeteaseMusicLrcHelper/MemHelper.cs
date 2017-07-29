@@ -51,19 +51,30 @@ namespace NeteaseMusicLrcHelper
         public static string ReadString(IntPtr lpProcess,Int64 BaseAddr, List<Int64> Offsets)
         {
             //CalcAddress
-            IntPtr p = (IntPtr)CalcAddr(lpProcess, BaseAddr, Offsets);
+            IntPtr addr = (IntPtr)CalcAddr(lpProcess, BaseAddr, Offsets);
             //Reading 2byte loop
             List<byte> lst = new List<byte>();
             byte[] buffer = new byte[2];
             while(true)
             {
-                MemHelper.ReadProcessMemory(lpProcess, p, Marshal.UnsafeAddrOfPinnedArrayElement(buffer, 0), 2, IntPtr.Zero);
+                ReadProcessMemory(lpProcess, addr, Marshal.UnsafeAddrOfPinnedArrayElement(buffer, 0), 2, IntPtr.Zero);
                 if (buffer[0] == 0 && buffer[1] == 0 || lst.Count >= 10240) { break; }
                 lst.AddRange(buffer);
-                p = IntPtr.Add(p, 2);
+                addr = IntPtr.Add(addr, 2);
             }
 
             return Encoding.Unicode.GetString(lst.ToArray());
+        }
+        //ReadDouble
+        public static double ReadDouble(IntPtr lpProcess, Int64 BaseAddr, List<Int64> Offsets)
+        {
+            //CalcAddress
+            IntPtr addr = (IntPtr)CalcAddr(lpProcess, BaseAddr, Offsets);
+            //Reading 8byte
+            byte[] buffer = new byte[8];
+            ReadProcessMemory(lpProcess, addr, Marshal.UnsafeAddrOfPinnedArrayElement(buffer, 0), 8, IntPtr.Zero);
+
+            return BitConverter.ToDouble(buffer, 0);
         }
     }
 }

@@ -15,6 +15,7 @@ using System.Windows.Shapes;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Timers;
+using System.Threading;
 
 namespace NeteaseMusicLrcHelper
 {
@@ -31,6 +32,8 @@ namespace NeteaseMusicLrcHelper
 
         private Process NeteaseMusicProcess;
         private ProcessModule NeteaseMusicDLL;
+        private LrcHelper.LRC CurrentLRC;
+        private Thread thd_ScrollSync;
 
         private void Init()
         {
@@ -44,22 +47,63 @@ namespace NeteaseMusicLrcHelper
                 if (module.ModuleName == "NeteaseMusic.dll") { NeteaseMusicDLL = module; }
             }
 
+            //LrcSyncSync Thread
+            thd_ScrollSync = new Thread(LrcSync);
+            thd_ScrollSync.Start();
 
-            //Read LRC
-            text.Text = ReadLRC();
-            string strlrc = "";
-            LrcHelper.LRC lrc = LrcHelper.Parse(ReadLRC());
-            foreach (LrcHelper.LrcLine item in lrc.LrcLines)
+        }
+
+        //LRC Sync
+        private void LrcSync()
+        {
+            while (true)
             {
-                strlrc += "[" + item.StartTime + "]" + item.Text + "\r\n";
+                //读最新歌词
+                CurrentLRC = LrcHelper.Parse(ReadLRC());
+                
+
+
+                double now = ReadPlayTime();
+                //定位当前歌词
+                for (int i = 0; i < CurrentLRC.LrcLines.Count; i++)
+                {
+                    if (now >= CurrentLRC.LrcLines[i].StartTime)
+                    {
+                        double percent;
+                        if (i == CurrentLRC.LrcLines.Count - 1) //容错 最后一条歌词i+1会越界
+                        {
+                            percent = (now - CurrentLRC.LrcLines[i].StartTime) / (ReadEndTime() - CurrentLRC.LrcLines[i].StartTime);
+                        }
+                        else
+                        {
+                            if (now < CurrentLRC.LrcLines[i + 1].StartTime) //继续定位歌词
+                            {
+                                percent = (now - CurrentLRC.LrcLines[i].StartTime) / (CurrentLRC.LrcLines[i + 1].StartTime - CurrentLRC.LrcLines[i].StartTime);
+                            }
+                            else
+                            {
+                                continue;
+                            }
+                        }
+                        //设置歌词
+                        lbl_back.Dispatcher.Invoke(new Action(() =>
+                        {
+                            //back
+                            lbl_back.Content = CurrentLRC.LrcLines[i].Text;
+                            //front
+                            lbl_front.Content = CurrentLRC.LrcLines[i].Text;
+                            ((LinearGradientBrush)lbl_front.OpacityMask).GradientStops[0].Offset = percent;
+                        }));
+                        break;
+                    }
+                }
+                Thread.Sleep(20);
             }
-            this.text2.Text = strlrc;
-            
         }
 
         private string ReadLRC()
         {
-            //准备指针
+            //准备指针偏移
             List<Int64> Offsets = new List<Int64>();
             Offsets.Add(0x00B13588);
             Offsets.Add(0x30);
@@ -72,7 +116,7 @@ namespace NeteaseMusicLrcHelper
 
         private string ReadTitle()
         {
-            //准备指针
+            //准备指针偏移
             List<Int64> Offsets = new List<Int64>();
             Offsets.Add(0x00B0B248);
             Offsets.Add(0xF0);
@@ -82,7 +126,7 @@ namespace NeteaseMusicLrcHelper
 
         private string ReadTLRC()
         {
-            //准备指针
+            //准备指针偏移
             List<Int64> Offsets = new List<Int64>();
             Offsets.Add(0x00B13588);
             Offsets.Add(0x30);
@@ -92,7 +136,32 @@ namespace NeteaseMusicLrcHelper
             Offsets.Add(0xC);
             return MemHelper.ReadString(NeteaseMusicProcess.Handle, NeteaseMusicDLL.BaseAddress.ToInt64(), Offsets);
         }
-        
+        private double ReadPlayTime()
+        {
+            //准备指针偏移
+            List<Int64> Offsets = new List<Int64>();
+            Offsets.Add(0x00B0B838);
+            Offsets.Add(0x158);
+            Offsets.Add(0x8);
+            Offsets.Add(0x0);
+            Offsets.Add(0x108);
+            Offsets.Add(0x30);
+            return MemHelper.ReadDouble(NeteaseMusicProcess.Handle, NeteaseMusicDLL.BaseAddress.ToInt64(), Offsets);
+        }
+
+        private double ReadEndTime()
+        {
+            //准备指针偏移
+            List<Int64> Offsets = new List<Int64>();
+            Offsets.Add(0x00B0B838);
+            Offsets.Add(0x158);
+            Offsets.Add(0x8);
+            Offsets.Add(0x0);
+            Offsets.Add(0x108);
+            Offsets.Add(0x28);
+            return MemHelper.ReadDouble(NeteaseMusicProcess.Handle, NeteaseMusicDLL.BaseAddress.ToInt64(), Offsets);
+        }
+
 
     }
 }
