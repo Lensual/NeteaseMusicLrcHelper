@@ -16,6 +16,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Timers;
 using System.Threading;
+using System.Windows.Media.Animation;
 
 namespace NeteaseMusicLrcHelper
 {
@@ -51,6 +52,7 @@ namespace NeteaseMusicLrcHelper
             thd_ScrollSync = new Thread(LrcSync);
             thd_ScrollSync.Start();
 
+
         }
 
         //LRC Sync
@@ -60,7 +62,7 @@ namespace NeteaseMusicLrcHelper
             {
                 //读最新歌词
                 CurrentLRC = LrcHelper.Parse(ReadLRC());
-                
+
 
 
                 double now = ReadPlayTime();
@@ -85,16 +87,41 @@ namespace NeteaseMusicLrcHelper
                                 continue;
                             }
                         }
+
                         //设置歌词
+
                         lbl_back.Dispatcher.Invoke(new Action(() =>
                         {
                             //back
                             lbl_back.Content = CurrentLRC.LrcLines[i].Text;
                             //front
                             lbl_front.Content = CurrentLRC.LrcLines[i].Text;
-                            ((LinearGradientBrush)lbl_front.OpacityMask).GradientStops[0].Offset = percent;
+                            //((LinearGradientBrush)lbl_front.OpacityMask).GradientStops[0].Offset = percent;
                         }));
                         break;
+
+                        //Debuging
+                        Storyboard sb = (Storyboard)Resources["ScrollAnimation"];
+                        DoubleAnimationUsingKeyFrames da = (DoubleAnimationUsingKeyFrames)sb.Children[0];
+                        EasingDoubleKeyFrame startFrame = (EasingDoubleKeyFrame)da.KeyFrames[0];
+                        EasingDoubleKeyFrame endFrame = (EasingDoubleKeyFrame)da.KeyFrames[1];
+
+                        #region !!不知道为什么Invoke了还抛出线程无法访问此对象的异常
+                        startFrame.Dispatcher.Invoke(new Action(() =>
+                        {
+                            try { startFrame.Value = (now - CurrentLRC.LrcLines[i].StartTime) / (CurrentLRC.LrcLines[i + 1].StartTime - CurrentLRC.LrcLines[i].StartTime); } catch { }
+                        }));
+                        endFrame.Dispatcher.Invoke(new Action(() =>
+                        {
+                            try { endFrame.KeyTime = KeyTime.FromTimeSpan(new TimeSpan((long)(10000 * (CurrentLRC.LrcLines[i + 1].StartTime - CurrentLRC.LrcLines[i].StartTime)))); } catch { }
+                        }));
+                        startFrame.Dispatcher.Invoke(new Action(() =>
+                        {
+                            try { sb.Begin(); } catch { }
+                        }));
+                        #endregion
+
+
                     }
                 }
                 Thread.Sleep(20);
