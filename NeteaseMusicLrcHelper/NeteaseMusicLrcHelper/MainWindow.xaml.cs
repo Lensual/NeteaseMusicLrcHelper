@@ -48,10 +48,35 @@ namespace NeteaseMusicLrcHelper
                 if (module.ModuleName == "NeteaseMusic.dll") { NeteaseMusicDLL = module; }
             }
 
+            ////Debuging
+            //Storyboard sb = (Storyboard)Resources["ScrollAnimation"];
+            //DoubleAnimationUsingKeyFrames da = (DoubleAnimationUsingKeyFrames)sb.Children[0];
+            //EasingDoubleKeyFrame startFrame = (EasingDoubleKeyFrame)da.KeyFrames[0];
+            //EasingDoubleKeyFrame endFrame = (EasingDoubleKeyFrame)da.KeyFrames[1];
+
+            //startFrame.Value = 0.25;
+            //endFrame.KeyTime = KeyTime.FromTimeSpan(new TimeSpan(0,0,10));
+
+            //sb.Begin();
+
+
             //LrcSyncSync Thread
             thd_ScrollSync = new Thread(LrcSync);
             thd_ScrollSync.Start();
+        }
 
+        private delegate void sbDelegate(double now, int i);
+        private void sbAction(double now, int i)
+        {
+            //Debuging
+            Storyboard sb = (Storyboard)Resources["ScrollAnimation"];
+            DoubleAnimationUsingKeyFrames da = (DoubleAnimationUsingKeyFrames)sb.Children[0];
+            EasingDoubleKeyFrame startFrame = (EasingDoubleKeyFrame)da.KeyFrames[0];
+            EasingDoubleKeyFrame endFrame = (EasingDoubleKeyFrame)da.KeyFrames[1];
+
+            startFrame.Value = (now - CurrentLRC.LrcLines[i].StartTime) / (CurrentLRC.LrcLines[i + 1].StartTime - CurrentLRC.LrcLines[i].StartTime);
+            endFrame.KeyTime = KeyTime.FromTimeSpan(new TimeSpan((long)(10000 * (CurrentLRC.LrcLines[i + 1].StartTime - CurrentLRC.LrcLines[i].StartTime))));
+            sb.Begin();
 
         }
 
@@ -98,33 +123,59 @@ namespace NeteaseMusicLrcHelper
                             lbl_front.Content = CurrentLRC.LrcLines[i].Text;
                             //((LinearGradientBrush)lbl_front.OpacityMask).GradientStops[0].Offset = percent;
                         }));
-                        break;
+                        //break;
 
-                        //Debuging
-                        Storyboard sb = (Storyboard)Resources["ScrollAnimation"];
-                        DoubleAnimationUsingKeyFrames da = (DoubleAnimationUsingKeyFrames)sb.Children[0];
-                        EasingDoubleKeyFrame startFrame = (EasingDoubleKeyFrame)da.KeyFrames[0];
-                        EasingDoubleKeyFrame endFrame = (EasingDoubleKeyFrame)da.KeyFrames[1];
 
                         #region !!不知道为什么Invoke了还抛出线程无法访问此对象的异常
-                        startFrame.Dispatcher.Invoke(new Action(() =>
-                        {
-                            try { startFrame.Value = (now - CurrentLRC.LrcLines[i].StartTime) / (CurrentLRC.LrcLines[i + 1].StartTime - CurrentLRC.LrcLines[i].StartTime); } catch { }
-                        }));
-                        endFrame.Dispatcher.Invoke(new Action(() =>
-                        {
-                            try { endFrame.KeyTime = KeyTime.FromTimeSpan(new TimeSpan((long)(10000 * (CurrentLRC.LrcLines[i + 1].StartTime - CurrentLRC.LrcLines[i].StartTime)))); } catch { }
-                        }));
-                        startFrame.Dispatcher.Invoke(new Action(() =>
-                        {
-                            try { sb.Begin(); } catch { }
-                        }));
+
+
+                        this.Dispatcher.Invoke(new sbDelegate(sbAction), now,i);
+
+                        //startFrame.Dispatcher.Invoke(new Action(() =>
+                        //{
+                        //    startFrame.Value = (now - CurrentLRC.LrcLines[i].StartTime) / (CurrentLRC.LrcLines[i + 1].StartTime - CurrentLRC.LrcLines[i].StartTime);
+                        //}));
+
+                        //endFrame.Dispatcher.VerifyAccess();
+                        //Debug.WriteLine(endFrame.CheckAccess());
+
+                        //endFrame.Dispatcher.Invoke(new Action(() =>
+                        //{
+                        //    endFrame.KeyTime = KeyTime.FromTimeSpan(new TimeSpan((long)(10000 * (CurrentLRC.LrcLines[i + 1].StartTime - CurrentLRC.LrcLines[i].StartTime))));
+                        //}));
+
+
+                        //sb.Begin();
+
+                        //startFrame.Dispatcher.Invoke(new Action(() =>
+                        //{
+                        //    try { startFrame.Value = 0; } catch { }
+                        //}));
+                        //endFrame.Dispatcher.Invoke(new Action(() =>
+                        //{
+                        //    try { endFrame.KeyTime = KeyTime.FromTimeSpan(new TimeSpan(0,0,1)); } catch { }
+                        //}));
+
+                        //startFrame.Dispatcher.Invoke(new Action(() =>
+                        //{
+                        //    try { startFrame.Value = (now - CurrentLRC.LrcLines[i].StartTime) / (CurrentLRC.LrcLines[i + 1].StartTime - CurrentLRC.LrcLines[i].StartTime); } catch { }
+                        //}));
+                        //endFrame.Dispatcher.Invoke(new Action(() =>
+                        //{
+                        //    try { endFrame.KeyTime = KeyTime.FromTimeSpan(new TimeSpan((long)(10000 * (CurrentLRC.LrcLines[i + 1].StartTime - CurrentLRC.LrcLines[i].StartTime)))); } catch { }
+                        //}));
+                        //startFrame.Dispatcher.Invoke(new Action(() =>
+                        //{
+                        //    try { sb.Begin(); } catch { }
+                        //}));
                         #endregion
+
+                        break;
 
 
                     }
                 }
-                Thread.Sleep(20);
+                Thread.Sleep(1000);
             }
         }
 

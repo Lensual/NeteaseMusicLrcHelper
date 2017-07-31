@@ -10,7 +10,7 @@
         <Storyboard x:Name="ScrollAnimation" x:Key="ScrollAnimation">
             <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.OpacityMask).(GradientBrush.GradientStops)[0].(GradientStop.Offset)" Storyboard.TargetName="lbl_front">
                 <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
-                <EasingDoubleKeyFrame KeyTime="0:0:2" Value="1"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:5" Value="1"/>
             </DoubleAnimationUsingKeyFrames>
         </Storyboard>
     </Window.Resources>
@@ -28,7 +28,7 @@
                 </LinearGradientBrush>
             </Label.Foreground>
         </Label>
-        <Label x:Name="lbl_front" Content="Label测测试试tsette sesttest" HorizontalAlignment="Left" Margin="131,131,0,0" VerticalAlignment="Top" FontSize="72" Background="{x:Null}" Visibility="Hidden">
+        <Label x:Name="lbl_front" Content="Label测测试试tsette sesttest" HorizontalAlignment="Left" Margin="131,131,0,0" VerticalAlignment="Top" FontSize="72" Background="{x:Null}">
             <Label.OpacityMask>
                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                     <LinearGradientBrush.RelativeTransform>
