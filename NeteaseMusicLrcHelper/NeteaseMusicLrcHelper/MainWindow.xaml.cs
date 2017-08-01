@@ -90,7 +90,7 @@ namespace NeteaseMusicLrcHelper
 
 
 
-                double now = ReadPlayTime();
+                int now = ReadPlayTime() / 10000;   //Convert 100ns(tick) to 1ms
                 //定位当前歌词
                 for (int i = 0; i < CurrentLRC.LrcLines.Count; i++)
                 {
@@ -123,59 +123,14 @@ namespace NeteaseMusicLrcHelper
                             lbl_front.Content = CurrentLRC.LrcLines[i].Text;
                             //((LinearGradientBrush)lbl_front.OpacityMask).GradientStops[0].Offset = percent;
                         }));
-                        //break;
-
-
-                        #region !!不知道为什么Invoke了还抛出线程无法访问此对象的异常
-
 
                         this.Dispatcher.Invoke(new sbDelegate(sbAction), now,i);
-
-                        //startFrame.Dispatcher.Invoke(new Action(() =>
-                        //{
-                        //    startFrame.Value = (now - CurrentLRC.LrcLines[i].StartTime) / (CurrentLRC.LrcLines[i + 1].StartTime - CurrentLRC.LrcLines[i].StartTime);
-                        //}));
-
-                        //endFrame.Dispatcher.VerifyAccess();
-                        //Debug.WriteLine(endFrame.CheckAccess());
-
-                        //endFrame.Dispatcher.Invoke(new Action(() =>
-                        //{
-                        //    endFrame.KeyTime = KeyTime.FromTimeSpan(new TimeSpan((long)(10000 * (CurrentLRC.LrcLines[i + 1].StartTime - CurrentLRC.LrcLines[i].StartTime))));
-                        //}));
-
-
-                        //sb.Begin();
-
-                        //startFrame.Dispatcher.Invoke(new Action(() =>
-                        //{
-                        //    try { startFrame.Value = 0; } catch { }
-                        //}));
-                        //endFrame.Dispatcher.Invoke(new Action(() =>
-                        //{
-                        //    try { endFrame.KeyTime = KeyTime.FromTimeSpan(new TimeSpan(0,0,1)); } catch { }
-                        //}));
-
-                        //startFrame.Dispatcher.Invoke(new Action(() =>
-                        //{
-                        //    try { startFrame.Value = (now - CurrentLRC.LrcLines[i].StartTime) / (CurrentLRC.LrcLines[i + 1].StartTime - CurrentLRC.LrcLines[i].StartTime); } catch { }
-                        //}));
-                        //endFrame.Dispatcher.Invoke(new Action(() =>
-                        //{
-                        //    try { endFrame.KeyTime = KeyTime.FromTimeSpan(new TimeSpan((long)(10000 * (CurrentLRC.LrcLines[i + 1].StartTime - CurrentLRC.LrcLines[i].StartTime)))); } catch { }
-                        //}));
-                        //startFrame.Dispatcher.Invoke(new Action(() =>
-                        //{
-                        //    try { sb.Begin(); } catch { }
-                        //}));
-                        #endregion
-
                         break;
 
 
                     }
                 }
-                Thread.Sleep(1000);
+                Thread.Sleep(100);
             }
         }
 
@@ -214,17 +169,13 @@ namespace NeteaseMusicLrcHelper
             Offsets.Add(0xC);
             return MemHelper.ReadString(NeteaseMusicProcess.Handle, NeteaseMusicDLL.BaseAddress.ToInt64(), Offsets);
         }
-        private double ReadPlayTime()
+        private int ReadPlayTime()
         {
             //准备指针偏移
             List<Int64> Offsets = new List<Int64>();
-            Offsets.Add(0x00B0B838);
-            Offsets.Add(0x158);
-            Offsets.Add(0x8);
-            Offsets.Add(0x0);
-            Offsets.Add(0x108);
-            Offsets.Add(0x30);
-            return MemHelper.ReadDouble(NeteaseMusicProcess.Handle, NeteaseMusicDLL.BaseAddress.ToInt64(), Offsets);
+            Offsets.Add(0x00B0B248);
+            Offsets.Add(0x28);
+            return MemHelper.ReadInt(NeteaseMusicProcess.Handle, NeteaseMusicDLL.BaseAddress.ToInt64(), Offsets);
         }
 
         private double ReadEndTime()

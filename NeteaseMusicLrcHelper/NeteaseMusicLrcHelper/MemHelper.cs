@@ -76,5 +76,16 @@ namespace NeteaseMusicLrcHelper
 
             return BitConverter.ToDouble(buffer, 0);
         }
+        //ReadInt
+        public static int ReadInt(IntPtr lpProcess, Int64 BaseAddr, List<Int64> Offsets)
+        {
+            //CalcAddress
+            IntPtr addr = (IntPtr)CalcAddr(lpProcess, BaseAddr, Offsets);
+            //Reading 8byte
+            byte[] buffer = new byte[4];
+            ReadProcessMemory(lpProcess, addr, Marshal.UnsafeAddrOfPinnedArrayElement(buffer, 0), 4, IntPtr.Zero);
+
+            return BitConverter.ToInt32(buffer, 0);
+        }
     }
 }
