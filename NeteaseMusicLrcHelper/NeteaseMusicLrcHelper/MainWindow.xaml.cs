@@ -17,6 +17,7 @@ using System.Runtime.InteropServices;
 using System.Timers;
 using System.Threading;
 using System.Windows.Media.Animation;
+using System.Windows.Forms;
 
 namespace NeteaseMusicLrcHelper
 {
@@ -25,16 +26,82 @@ namespace NeteaseMusicLrcHelper
     /// </summary>
     public partial class MainWindow : Window
     {
+
         public MainWindow()
         {
             InitializeComponent();
+            InitIcon();
             Init();
         }
 
+        private NotifyIcon notifyIcon;
         private Process NeteaseMusicProcess;
         private ProcessModule NeteaseMusicDLL;
         private LrcHelper.LRC CurrentLRC;
         private Thread thd_ScrollSync;
+
+
+        #region DependProperty
+        public bool EnabledLrc
+        {
+            get { return (bool)GetValue(EnabledLrcProperty); }
+            set { SetValue(EnabledLrcProperty, value); }
+        }
+        public static readonly DependencyProperty EnabledLrcProperty =
+            DependencyProperty.Register("EnabledLrc", typeof(bool), typeof(MainWindow), new PropertyMetadata(true));
+
+        public bool EnabledLrcAnimation
+        {
+            get { return (bool)GetValue(EnabledLrcAnimationProperty); }
+            set { SetValue(EnabledLrcAnimationProperty, value); }
+        }
+        public static readonly DependencyProperty EnabledLrcAnimationProperty =
+            DependencyProperty.Register("EnabledLrcAnimation", typeof(bool), typeof(MainWindow), new PropertyMetadata(false));
+        #endregion
+
+
+        private void InitIcon()
+        {
+            this.notifyIcon = new NotifyIcon();
+
+            this.notifyIcon.Icon = new System.Drawing.Icon(System.Windows.Application.GetResourceStream(new Uri(this.Icon.ToString())).Stream);
+            this.notifyIcon.Text = "NeteaseMusicLrcHelper";
+            this.notifyIcon.BalloonTipTitle = "NeteaseMusicLrcHelper";
+            this.notifyIcon.BalloonTipText = "Hello World";
+            this.notifyIcon.Visible = true;
+            this.notifyIcon.ContextMenu = new System.Windows.Forms.ContextMenu();
+
+            #region Menu
+            System.Windows.Forms.MenuItem item;
+
+            //Enable/Disable Lrc
+            item = new System.Windows.Forms.MenuItem("开启/关闭", new EventHandler((object obj, EventArgs e) =>
+            {
+                ((System.Windows.Forms.MenuItem)obj).Checked = !((System.Windows.Forms.MenuItem)obj).Checked;
+                EnabledLrc = ((System.Windows.Forms.MenuItem)obj).Checked;
+            }));
+            item.Checked = EnabledLrc;
+            this.notifyIcon.ContextMenu.MenuItems.Add(item);
+
+            //Lyrics Animation
+            item = new System.Windows.Forms.MenuItem("歌词跟随（Beta）", new EventHandler((object obj, EventArgs e) =>
+            {
+                ((System.Windows.Forms.MenuItem)obj).Checked = !((System.Windows.Forms.MenuItem)obj).Checked;
+                EnabledLrcAnimation = ((System.Windows.Forms.MenuItem)obj).Checked;
+            }));
+            item.Checked = EnabledLrcAnimation;
+            this.notifyIcon.ContextMenu.MenuItems.Add(item);
+
+            //Exit
+            this.notifyIcon.ContextMenu.MenuItems.Add(new System.Windows.Forms.MenuItem("退出", new EventHandler((object obj, EventArgs e) =>
+            {
+                thd_ScrollSync.Abort();
+                System.Windows.Application.Current.Shutdown();
+            })));
+            #endregion
+
+            this.notifyIcon.ShowBalloonTip(5000);
+        }
 
         private void Init()
         {

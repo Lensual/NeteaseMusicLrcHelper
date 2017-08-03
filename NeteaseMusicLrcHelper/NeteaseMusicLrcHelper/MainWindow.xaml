@@ -1,12 +1,13 @@
-﻿<Window x:Class="NeteaseMusicLrcHelper.MainWindow"
+﻿<Window x:Name="window" x:Class="NeteaseMusicLrcHelper.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NeteaseMusicLrcHelper"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="1243.182" Background="{x:Null}" AllowsTransparency="True" WindowStyle="None">
+        Title="MainWindow" Height="350" Width="1243.182" Background="{x:Null}" AllowsTransparency="True" WindowStyle="None" ShowInTaskbar="False" Icon="logo.ico" Topmost="True" >
     <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         <Storyboard x:Name="ScrollAnimation" x:Key="ScrollAnimation">
             <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.OpacityMask).(GradientBrush.GradientStops)[0].(GradientStop.Offset)" Storyboard.TargetName="lbl_front">
                 <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
@@ -14,6 +15,9 @@
             </DoubleAnimationUsingKeyFrames>
         </Storyboard>
     </Window.Resources>
+    <Window.Visibility>
+        <Binding Converter="{StaticResource BooleanToVisibilityConverter}" Path="EnabledLrc" RelativeSource="{RelativeSource Self}"/>
+    </Window.Visibility>
     <!--<Window.Triggers>
         <EventTrigger RoutedEvent="FrameworkElement.Loaded">
             <BeginStoryboard Storyboard="{StaticResource Storyboard1}"/>
@@ -28,7 +32,7 @@
                 </LinearGradientBrush>
             </Label.Foreground>
         </Label>
-        <Label x:Name="lbl_front" Content="Label测测试试tsette sesttest" HorizontalAlignment="Left" Margin="131,131,0,0" VerticalAlignment="Top" FontSize="72" Background="{x:Null}">
+        <Label x:Name="lbl_front" Content="Label测测试试tsette sesttest" HorizontalAlignment="Left" Margin="131,131,0,0" VerticalAlignment="Top" FontSize="72" Background="{x:Null}" Visibility="{Binding EnabledLrcAnimation, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=window}">
             <Label.OpacityMask>
                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                     <LinearGradientBrush.RelativeTransform>
