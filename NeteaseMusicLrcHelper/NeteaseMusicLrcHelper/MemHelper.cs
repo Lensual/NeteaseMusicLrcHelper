@@ -12,11 +12,11 @@ namespace NeteaseMusicLrcHelper
         //OpenProcess
         [DllImportAttribute("kernel32.dll", EntryPoint = "OpenProcess")]
         public static extern IntPtr OpenProcess
-       (
+        (
            int iAccess,
            bool Handle,
            int ProcessID
-       );
+        );
         //GetModuleHandle
         [DllImport("kernel32")]
         public static extern IntPtr GetModuleHandle(string lpModuleName);
@@ -37,25 +37,26 @@ namespace NeteaseMusicLrcHelper
             IntPtr hObject
         );
         //CalcAddr
-        public static Int64 CalcAddr(IntPtr lpProcess, Int64 BaseAddr, List<Int64> Offsets){
+        public static Int64 CalcAddr(IntPtr lpProcess, Int64 BaseAddr, List<Int64> Offsets)
+        {
             if (Offsets.Count > 1)
             {
                 byte[] buffer = new byte[8];
                 ReadProcessMemory(lpProcess, (IntPtr)(BaseAddr + Offsets[0]), Marshal.UnsafeAddrOfPinnedArrayElement(buffer, 0), 8, IntPtr.Zero);
                 Offsets.RemoveAt(0);
-                return CalcAddr(lpProcess, BitConverter.ToInt64(buffer,0), Offsets);
+                return CalcAddr(lpProcess, BitConverter.ToInt64(buffer, 0), Offsets);
             }
             return BaseAddr + Offsets[0];
         }
         //ReadString
-        public static string ReadString(IntPtr lpProcess,Int64 BaseAddr, List<Int64> Offsets)
+        public static string ReadString(IntPtr lpProcess, Int64 BaseAddr, List<Int64> Offsets)
         {
             //CalcAddress
             IntPtr addr = (IntPtr)CalcAddr(lpProcess, BaseAddr, Offsets);
             //Reading 2byte loop
             List<byte> lst = new List<byte>();
             byte[] buffer = new byte[2];
-            while(true)
+            while (true)
             {
                 ReadProcessMemory(lpProcess, addr, Marshal.UnsafeAddrOfPinnedArrayElement(buffer, 0), 2, IntPtr.Zero);
                 if (buffer[0] == 0 && buffer[1] == 0 || lst.Count >= 10240) { break; }

@@ -48,25 +48,15 @@ namespace NeteaseMusicLrcHelper
                 if (module.ModuleName == "NeteaseMusic.dll") { NeteaseMusicDLL = module; }
             }
 
-            ////Debuging
-            //Storyboard sb = (Storyboard)Resources["ScrollAnimation"];
-            //DoubleAnimationUsingKeyFrames da = (DoubleAnimationUsingKeyFrames)sb.Children[0];
-            //EasingDoubleKeyFrame startFrame = (EasingDoubleKeyFrame)da.KeyFrames[0];
-            //EasingDoubleKeyFrame endFrame = (EasingDoubleKeyFrame)da.KeyFrames[1];
-
-            //startFrame.Value = 0.25;
-            //endFrame.KeyTime = KeyTime.FromTimeSpan(new TimeSpan(0,0,10));
-
-            //sb.Begin();
-
-
             //LrcSyncSync Thread
             thd_ScrollSync = new Thread(LrcSync);
             thd_ScrollSync.Start();
         }
 
-        private delegate void sbDelegate(double now, int i);
-        private void sbAction(double now, int i)
+        #region Lrc Animation
+
+        private delegate void lrcAniDelegate(double startPercent, long end);
+        private void lrcAniAction(double startPercent, long end)
         {
             //Debuging
             Storyboard sb = (Storyboard)Resources["ScrollAnimation"];
@@ -74,11 +64,12 @@ namespace NeteaseMusicLrcHelper
             EasingDoubleKeyFrame startFrame = (EasingDoubleKeyFrame)da.KeyFrames[0];
             EasingDoubleKeyFrame endFrame = (EasingDoubleKeyFrame)da.KeyFrames[1];
 
-            startFrame.Value = (now - CurrentLRC.LrcLines[i].StartTime) / (CurrentLRC.LrcLines[i + 1].StartTime - CurrentLRC.LrcLines[i].StartTime);
-            endFrame.KeyTime = KeyTime.FromTimeSpan(new TimeSpan((long)(10000 * (CurrentLRC.LrcLines[i + 1].StartTime - CurrentLRC.LrcLines[i].StartTime))));
+            startFrame.Value = startPercent;
+            endFrame.KeyTime = KeyTime.FromTimeSpan(new TimeSpan(end));
             sb.Begin();
 
         }
+        #endregion
 
         //LRC Sync
         private void LrcSync()
@@ -87,8 +78,6 @@ namespace NeteaseMusicLrcHelper
             {
                 //读最新歌词
                 CurrentLRC = LrcHelper.Parse(ReadLRC());
-
-
 
                 int now = ReadPlayTime() / 10000;   //Convert 100ns(tick) to 1ms
                 //定位当前歌词
@@ -114,7 +103,6 @@ namespace NeteaseMusicLrcHelper
                         }
 
                         //设置歌词
-
                         lbl_back.Dispatcher.Invoke(new Action(() =>
                         {
                             //back
@@ -124,7 +112,8 @@ namespace NeteaseMusicLrcHelper
                             //((LinearGradientBrush)lbl_front.OpacityMask).GradientStops[0].Offset = percent;
                         }));
 
-                        this.Dispatcher.Invoke(new sbDelegate(sbAction), now,i);
+                        //设置滚动动画
+                        this.Dispatcher.Invoke(new lrcAniDelegate(lrcAniAction), percent, (long)(10000 * (CurrentLRC.LrcLines[i + 1].StartTime - CurrentLRC.LrcLines[i].StartTime)));
                         break;
 
 
@@ -133,6 +122,10 @@ namespace NeteaseMusicLrcHelper
                 Thread.Sleep(100);
             }
         }
+
+
+
+        #region ReadMem
 
         private string ReadLRC()
         {
@@ -190,6 +183,7 @@ namespace NeteaseMusicLrcHelper
             Offsets.Add(0x28);
             return MemHelper.ReadDouble(NeteaseMusicProcess.Handle, NeteaseMusicDLL.BaseAddress.ToInt64(), Offsets);
         }
+        #endregion
 
 
     }
