@@ -1,0 +1,13 @@
+﻿反汇编分析笔记
+试图找到GetTime()的入口函数，并尝试注入调用；
+
+NeteaseMusic.RHBinder__ShimExeMain+1BD014 - E8 C7F8FFFF           - call NeteaseMusic.RHBinder__ShimExeMain+1BC8E0 { start }
+	NeteaseMusic.RHBinder__ShimExeMain+1BC97D - E8 6E000000           - call NeteaseMusic.RHBinder__ShimExeMain+1BC9F0 { Call 1 在RAX被改变之前的Call }
+		NeteaseMusic.RHBinder__ShimExeMain+1BCA20 - E8 0B09F0FF           - call NeteaseMusic.RHBinder__ShimExeMain+BD330 { Call 2 在这个Call内部 RAX变化         怀疑这个函数是GetTime() }
+			NeteaseMusic.RHBinder__ShimExeMain+BD363 - 48 8B 44 24 20        - mov rax,[rsp+20] { 这里RAX变化了    指针 RSP+20 的内容 赋值给RAX  RAX是整型的时间 }
+		NeteaseMusic.RHBinder__ShimExeMain+1BCA25 - 48 89 45 00           - mov [rbp+00],rax { 在这一句执行前 发现的RAX变成了时间 那么在上面的Call下断点 }
+	NeteaseMusic.RHBinder__ShimExeMain+1BC982 - 48 8B D0              - mov rdx,rax { RAX被赋值给RDX 在这句找到的时间首次出现在RAX  前一句是 Call 1}
+	NeteaseMusic.RHBinder__ShimExeMain+1BC988 - E8 23000000           - call NeteaseMusic.RHBinder__ShimExeMain+1BC9B0 { Call3 跳到写内存的函数 }
+		NeteaseMusic.RHBinder__ShimExeMain+1BC9B6 - 48 8B DA              - mov rbx,rdx { RDX被赋值给了RBX }
+		NeteaseMusic.RHBinder__ShimExeMain+1BC9CA - 48 89 5F 28           - mov [rdi+28],rbx { 将RBX写到目标内存 }
+NeteaseMusic.RHBinder__ShimExeMain+1BD019 - EB 05                 - jmp NeteaseMusic.RHBinder__ShimExeMain+1BD020 { end }
