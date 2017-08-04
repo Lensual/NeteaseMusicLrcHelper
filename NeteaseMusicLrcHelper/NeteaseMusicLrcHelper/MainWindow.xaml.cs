@@ -152,16 +152,20 @@ namespace NeteaseMusicLrcHelper
                 {
                     if (now >= CurrentLRC.LrcLines[i].StartTime)
                     {
-                        double percent;
                         if (i == CurrentLRC.LrcLines.Count - 1) //容错 最后一条歌词i+1会越界
                         {
-                            percent = (now - CurrentLRC.LrcLines[i].StartTime) / (ReadEndTime() - CurrentLRC.LrcLines[i].StartTime);
+                            //设置滚动动画
+                            this.Dispatcher.Invoke(new lrcAniDelegate(lrcAniAction),
+                                (now - CurrentLRC.LrcLines[i].StartTime) / (ReadEndTime() - CurrentLRC.LrcLines[i].StartTime),
+                                (long)(10000 * (ReadEndTime() - CurrentLRC.LrcLines[i].StartTime)));
                         }
                         else
                         {
                             if (now < CurrentLRC.LrcLines[i + 1].StartTime) //继续定位歌词
                             {
-                                percent = (now - CurrentLRC.LrcLines[i].StartTime) / (CurrentLRC.LrcLines[i + 1].StartTime - CurrentLRC.LrcLines[i].StartTime);
+                                this.Dispatcher.Invoke(new lrcAniDelegate(lrcAniAction),
+                                    (now - CurrentLRC.LrcLines[i].StartTime) / (CurrentLRC.LrcLines[i + 1].StartTime - CurrentLRC.LrcLines[i].StartTime),
+                                    (long)(10000 * (CurrentLRC.LrcLines[i + 1].StartTime - CurrentLRC.LrcLines[i].StartTime)));
                             }
                             else
                             {
@@ -176,14 +180,8 @@ namespace NeteaseMusicLrcHelper
                             lbl_back.Content = CurrentLRC.LrcLines[i].Text;
                             //front
                             lbl_front.Content = CurrentLRC.LrcLines[i].Text;
-                            //((LinearGradientBrush)lbl_front.OpacityMask).GradientStops[0].Offset = percent;
                         }));
-
-                        //设置滚动动画
-                        this.Dispatcher.Invoke(new lrcAniDelegate(lrcAniAction), percent, (long)(10000 * (CurrentLRC.LrcLines[i + 1].StartTime - CurrentLRC.LrcLines[i].StartTime)));
                         break;
-
-
                     }
                 }
                 Thread.Sleep(100);
