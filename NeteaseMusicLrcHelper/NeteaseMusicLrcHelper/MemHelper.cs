@@ -17,9 +17,11 @@ namespace NeteaseMusicLrcHelper
            bool Handle,
            int ProcessID
         );
+
         //GetModuleHandle
         [DllImport("kernel32")]
         public static extern IntPtr GetModuleHandle(string lpModuleName);
+
         //ReadProcessMemory
         [DllImportAttribute("kernel32.dll", EntryPoint = "ReadProcessMemory")]
         public static extern bool ReadProcessMemory
@@ -30,12 +32,14 @@ namespace NeteaseMusicLrcHelper
             int nSize,
             IntPtr BytesRead
         );
+
         //CloseHandle   
         [DllImport("kernel32.dll", EntryPoint = "CloseHandle")]
         public static extern void CloseHandle
         (
             IntPtr hObject
         );
+
         //CalcAddr
         public static Int64 CalcAddr(IntPtr lpProcess, Int64 BaseAddr, List<Int64> Offsets)
         {
@@ -48,6 +52,7 @@ namespace NeteaseMusicLrcHelper
             }
             return BaseAddr + Offsets[0];
         }
+
         //ReadString
         public static string ReadString(IntPtr lpProcess, Int64 BaseAddr, List<Int64> Offsets)
         {
@@ -66,6 +71,7 @@ namespace NeteaseMusicLrcHelper
 
             return Encoding.Unicode.GetString(lst.ToArray());
         }
+
         //ReadDouble
         public static double ReadDouble(IntPtr lpProcess, Int64 BaseAddr, List<Int64> Offsets)
         {
@@ -77,6 +83,7 @@ namespace NeteaseMusicLrcHelper
 
             return BitConverter.ToDouble(buffer, 0);
         }
+
         //ReadInt
         public static int ReadInt(IntPtr lpProcess, Int64 BaseAddr, List<Int64> Offsets)
         {
@@ -88,5 +95,9 @@ namespace NeteaseMusicLrcHelper
 
             return BitConverter.ToInt32(buffer, 0);
         }
+
+        //NTResumeProcess
+        [DllImport("ntdll.dll")]
+        public static extern uint NtResumeProcess([In] IntPtr processHandle);
     }
 }

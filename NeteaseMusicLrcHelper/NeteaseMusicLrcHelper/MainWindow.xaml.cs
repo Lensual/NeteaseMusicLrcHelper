@@ -143,11 +143,12 @@ namespace NeteaseMusicLrcHelper
         {
             while (true)
             {
+                //唤醒进程(但是并没有效果)
+                MemHelper.NtResumeProcess(NeteaseMusicProcess.Handle);
                 //读最新歌词
                 CurrentLRC = LrcHelper.Parse(ReadLRC());
-
-                int now = ReadPlayTime() / 10000;   //Convert 100ns(tick) to 1ms
                 //定位当前歌词
+                int now = ReadPlayTime() / 10000;   //Convert 100ns(tick) to 1ms
                 for (int i = 0; i < CurrentLRC.LrcLines.Count; i++)
                 {
                     if (now >= CurrentLRC.LrcLines[i].StartTime)
@@ -185,6 +186,9 @@ namespace NeteaseMusicLrcHelper
                     }
                 }
                 Thread.Sleep(100);
+#if DEBUG
+                Debug.WriteLine("sleep" + now);
+#endif
             }
         }
 
