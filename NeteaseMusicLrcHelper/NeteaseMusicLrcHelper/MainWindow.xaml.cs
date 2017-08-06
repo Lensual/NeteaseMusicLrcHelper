@@ -110,6 +110,7 @@ namespace NeteaseMusicLrcHelper
             this.notifyIcon.ContextMenu.MenuItems.Add(new System.Windows.Forms.MenuItem("退出", new EventHandler((object obj, EventArgs e) =>
             {
                 thd_ScrollSync.Abort();
+                notifyIcon.Dispose();
                 System.Windows.Application.Current.Shutdown();
             })));
             #endregion
@@ -205,9 +206,6 @@ namespace NeteaseMusicLrcHelper
                 Thread.Sleep(100);
             }
         }
-
-
-
         #region ReadMem
 
         private string ReadLRC()
