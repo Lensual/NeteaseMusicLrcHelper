@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CheatTable CheatEngineTableVersion="26">
+  <CheatEntries>
+    <CheatEntry>
+      <ID>61</ID>
+      <Description>"LRC"</Description>
+      <LastState RealAddress="1FB009D1B14"/>
+      <VariableType>String</VariableType>
+      <Length>100</Length>
+      <Unicode>1</Unicode>
+      <CodePage>0</CodePage>
+      <ZeroTerminate>1</ZeroTerminate>
+      <Address>"SharedLibrary.dll"+002B7940</Address>
+      <Offsets>
+        <Offset>C</Offset>
+        <Offset>198</Offset>
+        <Offset>540</Offset>
+        <Offset>460</Offset>
+        <Offset>7E0</Offset>
+      </Offsets>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>62</ID>
+      <Description>"TimeNow"</Description>
+      <LastState Value="2277959339" RealAddress="1FB0015D430"/>
+      <VariableType>4 Bytes</VariableType>
+      <Address>"SharedLibrary.dll"+002BAE48</Address>
+      <Offsets>
+        <Offset>28</Offset>
+        <Offset>0</Offset>
+        <Offset>50</Offset>
+        <Offset>10</Offset>
+        <Offset>8</Offset>
+      </Offsets>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>63</ID>
+      <Description>"TLRC"</Description>
+      <LastState RealAddress="1FB009D2F94"/>
+      <VariableType>String</VariableType>
+      <Length>100</Length>
+      <Unicode>1</Unicode>
+      <CodePage>0</CodePage>
+      <ZeroTerminate>1</ZeroTerminate>
+      <Address>"SharedLibrary.dll"+002B9C28</Address>
+      <Offsets>
+        <Offset>C</Offset>
+        <Offset>1A0</Offset>
+        <Offset>350</Offset>
+        <Offset>470</Offset>
+        <Offset>28</Offset>
+      </Offsets>
+    </CheatEntry>
+  </CheatEntries>
+  <UserdefinedSymbols/>
+</CheatTable>
