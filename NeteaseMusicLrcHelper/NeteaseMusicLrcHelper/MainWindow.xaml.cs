@@ -32,6 +32,10 @@ namespace NeteaseMusicLrcHelper
             InitializeComponent();
             InitIcon();
             Init();
+
+            SettingsWindow settingsWnd = new SettingsWindow();
+            settingsWnd.DataContext = this;
+            settingsWnd.Show();
         }
 
         private NotifyIcon notifyIcon;
@@ -57,6 +61,16 @@ namespace NeteaseMusicLrcHelper
         }
         public static readonly DependencyProperty EnabledLrcAnimationProperty =
             DependencyProperty.Register("EnabledLrcAnimation", typeof(bool), typeof(MainWindow), new PropertyMetadata(false));
+
+        public bool EnabledWakeupProcess
+        {
+            get { return (bool)GetValue(EnabledWakeupProcessProperty); }
+            set { SetValue(EnabledWakeupProcessProperty, value); }
+        }
+        public static readonly DependencyProperty EnabledWakeupProcessProperty =
+            DependencyProperty.Register("EnabledWakeupProcess", typeof(bool), typeof(MainWindow), new PropertyMetadata(false));
+
+
         #endregion
 
 
@@ -143,8 +157,11 @@ namespace NeteaseMusicLrcHelper
         {
             while (true)
             {
-                //唤醒进程(但是并没有效果)
-                MemHelper.NtResumeProcess(NeteaseMusicProcess.Handle);
+                if (this.Dispatcher.Invoke(() => { return EnabledWakeupProcess; }))
+                {
+                    //唤醒进程(但是并没有效果)
+                    MemHelper.NtResumeProcess(NeteaseMusicProcess.Handle);
+                }
                 //读最新歌词
                 CurrentLRC = LrcHelper.Parse(ReadLRC());
                 //定位当前歌词
@@ -186,9 +203,6 @@ namespace NeteaseMusicLrcHelper
                     }
                 }
                 Thread.Sleep(100);
-#if DEBUG
-                Debug.WriteLine("sleep" + now);
-#endif
             }
         }
 
