@@ -266,8 +266,17 @@ namespace NeteaseMusicLrcHelper
             Offsets.Add(0x28);
             return MemHelper.ReadDouble(NeteaseMusicProcess.Handle, NeteaseMusicDLL.BaseAddress.ToInt64(), Offsets);
         }
+
         #endregion
 
-
+        private void window_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                this.Cursor = System.Windows.Input.Cursors.SizeAll;
+                this.DragMove();
+                this.Cursor = System.Windows.Input.Cursors.AppStarting;
+            }
+        }
     }
 }
