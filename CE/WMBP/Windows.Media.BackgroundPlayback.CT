@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CheatTable CheatEngineTableVersion="27">
+  <CheatEntries>
+    <CheatEntry>
+      <ID>1</ID>
+      <Description>"Time5"</Description>
+      <LastState Value="1079155306" RealAddress="248BFBA0538"/>
+      <VariableType>4 Bytes</VariableType>
+      <Address>"THREADSTACK0"-00000960</Address>
+      <Offsets>
+        <Offset>13A8</Offset>
+        <Offset>8</Offset>
+        <Offset>10</Offset>
+        <Offset>8</Offset>
+        <Offset>C0</Offset>
+        <Offset>4C8</Offset>
+        <Offset>38</Offset>
+        <Offset>938</Offset>
+        <Offset>358</Offset>
+      </Offsets>
+    </CheatEntry>
+  </CheatEntries>
+  <UserdefinedSymbols/>
+</CheatTable>

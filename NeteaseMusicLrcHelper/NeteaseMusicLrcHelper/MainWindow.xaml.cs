@@ -18,6 +18,7 @@ using System.Timers;
 using System.Threading;
 using System.Windows.Media.Animation;
 using System.Windows.Forms;
+using static NeteaseMusicLrcHelper.MemHelper;
 
 namespace NeteaseMusicLrcHelper
 {
@@ -33,9 +34,10 @@ namespace NeteaseMusicLrcHelper
             InitIcon();
             Init();
 
-            SettingsWindow settingsWnd = new SettingsWindow();
-            settingsWnd.DataContext = this;
-            settingsWnd.Show();
+            //暂时用不上
+            //SettingsWindow settingsWnd = new SettingsWindow();
+            //settingsWnd.DataContext = this;
+            //settingsWnd.Show();
         }
 
         private NotifyIcon notifyIcon;
@@ -43,8 +45,7 @@ namespace NeteaseMusicLrcHelper
         private ProcessModule NeteaseMusicDLL;
         private LrcHelper.LRC CurrentLRC;
         private Thread thd_ScrollSync;
-
-
+        
         #region DependProperty
         public bool EnabledLrc
         {
@@ -72,7 +73,6 @@ namespace NeteaseMusicLrcHelper
 
 
         #endregion
-
 
         private void InitIcon()
         {
@@ -122,12 +122,11 @@ namespace NeteaseMusicLrcHelper
         {
             //Open Process
             NeteaseMusicProcess = Process.GetProcessesByName("NeteaseMusic")[0];
-            MemHelper.OpenProcess(0x0010, false, NeteaseMusicProcess.Id);
 
             //Find NeteaseMusic.dll
             foreach (ProcessModule module in NeteaseMusicProcess.Modules)
             {
-                if (module.ModuleName == "NeteaseMusic.dll") { NeteaseMusicDLL = module; }
+                if (module.ModuleName == "SharedLibrary.dll") { NeteaseMusicDLL = module; }
             }
 
             //LrcSyncSync Thread
@@ -160,8 +159,8 @@ namespace NeteaseMusicLrcHelper
             {
                 if (this.Dispatcher.Invoke(() => { return EnabledWakeupProcess; }))
                 {
-                    //唤醒进程(但是并没有效果)
-                    MemHelper.NtResumeProcess(NeteaseMusicProcess.Handle);
+                    //唤醒进程(但是效果不好)
+                    //Console.WriteLine(MemHelper.ResumeProcess(NeteaseMusicProcess.Id));
                 }
                 //读最新歌词
                 CurrentLRC = LrcHelper.Parse(ReadLRC());
@@ -173,7 +172,7 @@ namespace NeteaseMusicLrcHelper
                     {
                         if (i == CurrentLRC.LrcLines.Count - 1) //容错 最后一条歌词i+1会越界
                         {
-                            //设置滚动动画
+                            //设置滚动动画 （无法解决歌词同步不精确问题）
                             this.Dispatcher.Invoke(new lrcAniDelegate(lrcAniAction),
                                 (now - CurrentLRC.LrcLines[i].StartTime) / (ReadEndTime() - CurrentLRC.LrcLines[i].StartTime),
                                 (long)(10000 * (ReadEndTime() - CurrentLRC.LrcLines[i].StartTime)));
@@ -182,6 +181,7 @@ namespace NeteaseMusicLrcHelper
                         {
                             if (now < CurrentLRC.LrcLines[i + 1].StartTime) //继续定位歌词
                             {
+                                //（无法解决歌词同步不精确问题）
                                 this.Dispatcher.Invoke(new lrcAniDelegate(lrcAniAction),
                                     (now - CurrentLRC.LrcLines[i].StartTime) / (CurrentLRC.LrcLines[i + 1].StartTime - CurrentLRC.LrcLines[i].StartTime),
                                     (long)(10000 * (CurrentLRC.LrcLines[i + 1].StartTime - CurrentLRC.LrcLines[i].StartTime)));
@@ -212,9 +212,9 @@ namespace NeteaseMusicLrcHelper
         {
             //准备指针偏移
             List<Int64> Offsets = new List<Int64>();
-            Offsets.Add(0x00B13588);
-            Offsets.Add(0x30);
-            Offsets.Add(0xA0);
+            Offsets.Add(0x002B8A38);
+            Offsets.Add(0x38);
+            Offsets.Add(0x6C8);
             Offsets.Add(0x8);
             Offsets.Add(0x198);
             Offsets.Add(0xC);
@@ -235,10 +235,10 @@ namespace NeteaseMusicLrcHelper
         {
             //准备指针偏移
             List<Int64> Offsets = new List<Int64>();
-            Offsets.Add(0x00B13588);
-            Offsets.Add(0x30);
-            Offsets.Add(0xA0);
-            Offsets.Add(0x8);
+            Offsets.Add(0x002B9C28);
+            Offsets.Add(0x28);
+            Offsets.Add(0x470);
+            Offsets.Add(0x350);
             Offsets.Add(0x1A0);
             Offsets.Add(0xC);
             return MemHelper.ReadString(NeteaseMusicProcess.Handle, NeteaseMusicDLL.BaseAddress.ToInt64(), Offsets);
@@ -247,7 +247,11 @@ namespace NeteaseMusicLrcHelper
         {
             //准备指针偏移
             List<Int64> Offsets = new List<Int64>();
-            Offsets.Add(0x00B0B248);
+            Offsets.Add(0x002BAE48);
+            Offsets.Add(0x8);
+            Offsets.Add(0x10);
+            Offsets.Add(0x50);
+            Offsets.Add(0x0);
             Offsets.Add(0x28);
             return MemHelper.ReadInt(NeteaseMusicProcess.Handle, NeteaseMusicDLL.BaseAddress.ToInt64(), Offsets);
         }
