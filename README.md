@@ -1,7 +1,9 @@
 # NeteaseMusicLrcHelper
 Desktop lyrics for NeteaseMusic UWP
 
-网易云音乐UWP桌面歌词助手 V0.1
+网易云音乐UWP桌面歌词助手
+
+<img src=https://raw.githubusercontent.com/Lensual/NeteaseMusicLrcHelper/master/preview.png>
 
 ## 实现原理
 
@@ -11,20 +13,18 @@ Desktop lyrics for NeteaseMusic UWP
 
 通过`当前歌词和下句歌词的时间差`与`当前时间`计算歌词滚动。
 
+## 待改进
 
+* 皮肤调整
+* 设置保存
+* 优化歌词同步算法
 
+## 2018.07.04 V0.2
 
-## 已知问题
+修复改进以下问题
 
 * 歌词同步算法有问题可能会崩溃
 * 歌词滚动不精准，是网易云音乐UI进程与播放进程同步慢导致。解决方法 直接读播放进程
 * 不在网易云音乐打开歌词看一眼是不会下载LRC的，解决方法 使用SongID和官方API获取LRC
 * Windows会挂起后台UWP程序的UI，导致无法实时获取准确的内存信息，并且调用恢复进程API效果不明显
-
-## 待改进
-
-* LRC歌词通过SongID和官方API获取
 * 从`Windows.Media.BackgroundPlayback`进程获取时间而不是从UI进程
-* 皮肤调整
-* 设置保存
-* 优化歌词同步算法
