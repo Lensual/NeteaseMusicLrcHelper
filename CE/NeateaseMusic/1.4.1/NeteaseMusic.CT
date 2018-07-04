@@ -4,7 +4,7 @@
     <CheatEntry>
       <ID>67</ID>
       <Description>"LRC"</Description>
-      <LastState RealAddress="7FFEC3B81BE4"/>
+      <LastState RealAddress="1C5C2158374"/>
       <VariableType>String</VariableType>
       <Length>100</Length>
       <Unicode>1</Unicode>
@@ -22,7 +22,7 @@
     <CheatEntry>
       <ID>68</ID>
       <Description>"TLRC"</Description>
-      <LastState RealAddress="7FFEC3B81BE4"/>
+      <LastState RealAddress="1C5C2158D7C"/>
       <VariableType>String</VariableType>
       <Length>100</Length>
       <Unicode>1</Unicode>
@@ -40,8 +40,8 @@
     <CheatEntry>
       <ID>65</ID>
       <Description>"SongID"</Description>
-      <LastState Value="22760384" RealAddress="25202951E88"/>
-      <VariableType>4 Bytes</VariableType>
+      <LastState Value="25857421" RealAddress="1C5C0CF95A0"/>
+      <VariableType>8 Bytes</VariableType>
       <Address>NeteaseMusic.dll+00B235E8</Address>
       <Offsets>
         <Offset>40</Offset>
@@ -51,11 +51,25 @@
     <CheatEntry>
       <ID>62</ID>
       <Description>"TimeNow"</Description>
-      <LastState Value="214453976" RealAddress="25202A2F9B0"/>
-      <VariableType>4 Bytes</VariableType>
+      <LastState Value="314827589" RealAddress="1C5C0D49FC0"/>
+      <VariableType>8 Bytes</VariableType>
       <Address>"SharedLibrary.dll"+002BAE48</Address>
       <Offsets>
         <Offset>28</Offset>
+        <Offset>0</Offset>
+        <Offset>50</Offset>
+        <Offset>10</Offset>
+        <Offset>8</Offset>
+      </Offsets>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>69</ID>
+      <Description>"EndTime"</Description>
+      <LastState Value="2934595500" RealAddress="1C5C0D49FC8"/>
+      <VariableType>8 Bytes</VariableType>
+      <Address>"SharedLibrary.dll"+002BAE48</Address>
+      <Offsets>
+        <Offset>30</Offset>
         <Offset>0</Offset>
         <Offset>50</Offset>
         <Offset>10</Offset>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CheatTable CheatEngineTableVersion="27">
+  <CheatEntries>
+    <CheatEntry>
+      <ID>0</ID>
+      <Description>"MusicID"</Description>
+      <LastState Value="7097134" RealAddress="2262E6655F0"/>
+      <VariableType>4 Bytes</VariableType>
+      <Address>"QQMusic.dll"+00521E58</Address>
+      <Offsets>
+        <Offset>5B0</Offset>
+        <Offset>E8</Offset>
+        <Offset>8</Offset>
+        <Offset>38</Offset>
+        <Offset>28</Offset>
+      </Offsets>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>1</ID>
+      <Description>"MusicID2"</Description>
+      <LastState Value="7097134" RealAddress="2262E665040"/>
+      <VariableType>4 Bytes</VariableType>
+      <Address>"QQMusic.dll"+00521E58</Address>
+      <Offsets>
+        <Offset>0</Offset>
+        <Offset>A0</Offset>
+        <Offset>8</Offset>
+        <Offset>38</Offset>
+        <Offset>28</Offset>
+      </Offsets>
+    </CheatEntry>
+  </CheatEntries>
+  <UserdefinedSymbols/>
+</CheatTable>

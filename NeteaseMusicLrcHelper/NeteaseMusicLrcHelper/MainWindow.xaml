@@ -9,7 +9,7 @@
         MouseDown="window_MouseDown" HorizontalAlignment="Left" VerticalAlignment="Top" SizeToContent="WidthAndHeight" >
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
-        <Storyboard x:Name="ScrollAnimation" x:Key="ScrollAnimation">
+        <Storyboard x:Name="ScrollAnimation" x:Key="ScrollAnimation" Timeline.DesiredFrameRate="30">
             <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.OpacityMask).(GradientBrush.GradientStops)[0].(GradientStop.Offset)" Storyboard.TargetName="lbl_front">
                 <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
                 <EasingDoubleKeyFrame KeyTime="0:0:5" Value="1"/>

@@ -19,6 +19,7 @@ using System.Threading;
 using System.Windows.Media.Animation;
 using System.Windows.Forms;
 using static NeteaseMusicLrcHelper.MemHelper;
+using static NeteaseMusicLrcHelper.LrcHelper;
 
 namespace NeteaseMusicLrcHelper
 {
@@ -27,12 +28,17 @@ namespace NeteaseMusicLrcHelper
     /// </summary>
     public partial class MainWindow : Window
     {
+        private NeteaseMusic neteaseMusic;
+        //private Lrcs currentLrcs;
 
         public MainWindow()
         {
             InitializeComponent();
             InitIcon();
-            Init();
+
+            neteaseMusic = new NeteaseMusic();
+            thd_ScrollSync = new Thread(ScrollSync);
+            thd_ScrollSync.Start();
 
             //暂时用不上
             //SettingsWindow settingsWnd = new SettingsWindow();
@@ -41,12 +47,99 @@ namespace NeteaseMusicLrcHelper
         }
 
         private NotifyIcon notifyIcon;
-        private Process NeteaseMusicProcess;
-        private ProcessModule NeteaseMusicDLL;
-        private LrcHelper.LRC CurrentLRC;
         private Thread thd_ScrollSync;
-        
+        private bool exitRequest = false;
+
+        private void ScrollSync()
+        {
+            Int64 recentSongID = 0;
+            Lrcs currentLrcs = new Lrcs();
+            LRC lyric = new LRC();
+            LrcLine recentLine = new LrcLine();
+            while (!this.exitRequest)
+            {
+                while (!this.exitRequest && neteaseMusic.Dead)
+                {
+                    ShowLyric("等待网易云音乐UWP");
+                    neteaseMusic = new NeteaseMusic();
+                    Thread.Sleep(3000);
+                }
+                try
+                {
+                    #region 处理过程
+                    if (neteaseMusic.SongID != recentSongID)
+                    {
+                        recentSongID = neteaseMusic.SongID;
+                        ShowLyric("歌词下载中");
+                        //读最新歌词
+                        currentLrcs = neteaseMusic.GetCurrentLrc();
+                        if (!currentLrcs.nolyric || currentLrcs.lrc == "")
+                            lyric = LrcHelper.Parse(currentLrcs.lrc);
+                    }
+                    if (currentLrcs.nolyric || currentLrcs.lrc == null || currentLrcs.lrc == "")
+                    {
+                        ShowLyric("纯音乐 无歌词");
+                        Thread.Sleep(1000);
+                        continue;
+                    }
+                    //定位当前歌词
+                    Int64 now = neteaseMusic.CurrentTime / 10000;   //Convert 100ns(tick) to 1ms
+                    LrcLine line = lyric.LrcLines[LrcHelper.GetNowIndex(lyric, now)];   //偏移未处理
+                    if (!line.Equals(recentLine))
+                    {
+                        //歌词换行
+                        recentLine = line;
+                        //计算动画
+                        if ((bool)this.Dispatcher.Invoke(new GetEnabledLrcAnimationDelegate(GetEnabledLrcAnimation)))
+                        {
+                            Int64 aniDuration;
+                            Double percent;
+                            if (line.EndTime == -1)
+                            {
+                                //最后一句歌词
+                                aniDuration = neteaseMusic.EndTime / 10000 - now;
+                                percent = (Double)(now - line.StartTime) / (neteaseMusic.EndTime - line.StartTime);
+                            }
+                            else
+                            {
+                                aniDuration = line.EndTime - now;
+                                percent = (Double)(now - line.StartTime) / line.Duration;
+                            }
+                            if (aniDuration > 0)
+                            {
+                                this.Dispatcher.Invoke(new lrcAniDelegate(lrcAniAction), percent, aniDuration);
+                            }
+                        }
+                        //设置歌词
+                        ShowLyric(line.Text);
+                    }
+                    Thread.Sleep(200);
+                    #endregion
+                }
+                catch (Exception)
+                {
+                    if (!neteaseMusic.Dead)
+                        throw;
+                }
+            }
+        }
+
+
+        private void ShowLyric(string text)
+        {
+            lbl_back.Dispatcher.Invoke(new Action(() =>
+            {
+                //back
+                lbl_back.Content = text;
+                //front
+                lbl_front.Content = text;
+            }));
+        }
+
         #region DependProperty
+        /// <summary>
+        /// 启用歌词
+        /// </summary>
         public bool EnabledLrc
         {
             get { return (bool)GetValue(EnabledLrcProperty); }
@@ -55,6 +148,9 @@ namespace NeteaseMusicLrcHelper
         public static readonly DependencyProperty EnabledLrcProperty =
             DependencyProperty.Register("EnabledLrc", typeof(bool), typeof(MainWindow), new PropertyMetadata(true));
 
+        /// <summary>
+        /// 启用歌词滚动
+        /// </summary>
         public bool EnabledLrcAnimation
         {
             get { return (bool)GetValue(EnabledLrcAnimationProperty); }
@@ -63,13 +159,13 @@ namespace NeteaseMusicLrcHelper
         public static readonly DependencyProperty EnabledLrcAnimationProperty =
             DependencyProperty.Register("EnabledLrcAnimation", typeof(bool), typeof(MainWindow), new PropertyMetadata(false));
 
-        public bool EnabledWakeupProcess
-        {
-            get { return (bool)GetValue(EnabledWakeupProcessProperty); }
-            set { SetValue(EnabledWakeupProcessProperty, value); }
-        }
-        public static readonly DependencyProperty EnabledWakeupProcessProperty =
-            DependencyProperty.Register("EnabledWakeupProcess", typeof(bool), typeof(MainWindow), new PropertyMetadata(false));
+        //public bool EnabledWakeupProcess
+        //{
+        //    get { return (bool)GetValue(EnabledWakeupProcessProperty); }
+        //    set { SetValue(EnabledWakeupProcessProperty, value); }
+        //}
+        //public static readonly DependencyProperty EnabledWakeupProcessProperty =
+        //    DependencyProperty.Register("EnabledWakeupProcess", typeof(bool), typeof(MainWindow), new PropertyMetadata(false));
 
 
         #endregion
@@ -118,26 +214,15 @@ namespace NeteaseMusicLrcHelper
             this.notifyIcon.ShowBalloonTip(5000);
         }
 
-        private void Init()
-        {
-            //Open Process
-            NeteaseMusicProcess = Process.GetProcessesByName("NeteaseMusic")[0];
-
-            //Find NeteaseMusic.dll
-            foreach (ProcessModule module in NeteaseMusicProcess.Modules)
-            {
-                if (module.ModuleName == "SharedLibrary.dll") { NeteaseMusicDLL = module; }
-            }
-
-            //LrcSyncSync Thread
-            thd_ScrollSync = new Thread(LrcSync);
-            thd_ScrollSync.Start();
-        }
-
         #region Lrc Animation
 
         private delegate void lrcAniDelegate(double startPercent, long end);
-        private void lrcAniAction(double startPercent, long end)
+        /// <summary>
+        /// 立刻设置并激活歌词滚动
+        /// </summary>
+        /// <param name="startPercent">起始百分比</param>
+        /// <param name="duration">动画时长 ms</param>
+        private void lrcAniAction(double startPercent, long duration)
         {
             //Debuging
             Storyboard sb = (Storyboard)Resources["ScrollAnimation"];
@@ -146,131 +231,22 @@ namespace NeteaseMusicLrcHelper
             EasingDoubleKeyFrame endFrame = (EasingDoubleKeyFrame)da.KeyFrames[1];
 
             startFrame.Value = startPercent;
-            endFrame.KeyTime = KeyTime.FromTimeSpan(new TimeSpan(end));
+            endFrame.KeyTime = KeyTime.FromTimeSpan(new TimeSpan(duration * 10000));
             sb.Begin();
 
         }
+
+        private delegate bool GetEnabledLrcAnimationDelegate();
+        private bool GetEnabledLrcAnimation()
+        {
+            return EnabledLrcAnimation;
+        }
         #endregion
 
-        //LRC Sync
-        private void LrcSync()
-        {
-            while (true)
-            {
-                if (this.Dispatcher.Invoke(() => { return EnabledWakeupProcess; }))
-                {
-                    //唤醒进程(但是效果不好)
-                    //Console.WriteLine(MemHelper.ResumeProcess(NeteaseMusicProcess.Id));
-                }
-                //读最新歌词
-                CurrentLRC = LrcHelper.Parse(ReadLRC());
-                //定位当前歌词
-                int now = ReadPlayTime() / 10000;   //Convert 100ns(tick) to 1ms
-                for (int i = 0; i < CurrentLRC.LrcLines.Count; i++)
-                {
-                    if (now >= CurrentLRC.LrcLines[i].StartTime)
-                    {
-                        if (i == CurrentLRC.LrcLines.Count - 1) //容错 最后一条歌词i+1会越界
-                        {
-                            //设置滚动动画 （无法解决歌词同步不精确问题）
-                            this.Dispatcher.Invoke(new lrcAniDelegate(lrcAniAction),
-                                (now - CurrentLRC.LrcLines[i].StartTime) / (ReadEndTime() - CurrentLRC.LrcLines[i].StartTime),
-                                (long)(10000 * (ReadEndTime() - CurrentLRC.LrcLines[i].StartTime)));
-                        }
-                        else
-                        {
-                            if (now < CurrentLRC.LrcLines[i + 1].StartTime) //继续定位歌词
-                            {
-                                //（无法解决歌词同步不精确问题）
-                                this.Dispatcher.Invoke(new lrcAniDelegate(lrcAniAction),
-                                    (now - CurrentLRC.LrcLines[i].StartTime) / (CurrentLRC.LrcLines[i + 1].StartTime - CurrentLRC.LrcLines[i].StartTime),
-                                    (long)(10000 * (CurrentLRC.LrcLines[i + 1].StartTime - CurrentLRC.LrcLines[i].StartTime)));
-                            }
-                            else
-                            {
-                                continue;
-                            }
-                        }
 
-                        //设置歌词
-                        lbl_back.Dispatcher.Invoke(new Action(() =>
-                        {
-                            //back
-                            lbl_back.Content = CurrentLRC.LrcLines[i].Text;
-                            //front
-                            lbl_front.Content = CurrentLRC.LrcLines[i].Text;
-                        }));
-                        break;
-                    }
-                }
-                Thread.Sleep(100);
-            }
-        }
-        #region ReadMem
-
-        private string ReadLRC()
-        {
-            //准备指针偏移
-            List<Int64> Offsets = new List<Int64>();
-            Offsets.Add(0x002B8A38);
-            Offsets.Add(0x38);
-            Offsets.Add(0x6C8);
-            Offsets.Add(0x8);
-            Offsets.Add(0x198);
-            Offsets.Add(0xC);
-            return MemHelper.ReadString(NeteaseMusicProcess.Handle, NeteaseMusicDLL.BaseAddress.ToInt64(), Offsets);
-        }
-
-        private string ReadTitle()
-        {
-            //准备指针偏移
-            List<Int64> Offsets = new List<Int64>();
-            Offsets.Add(0x00B0B248);
-            Offsets.Add(0xF0);
-            Offsets.Add(0xC);
-            return MemHelper.ReadString(NeteaseMusicProcess.Handle, NeteaseMusicDLL.BaseAddress.ToInt64(), Offsets);
-        }
-
-        private string ReadTLRC()
-        {
-            //准备指针偏移
-            List<Int64> Offsets = new List<Int64>();
-            Offsets.Add(0x002B9C28);
-            Offsets.Add(0x28);
-            Offsets.Add(0x470);
-            Offsets.Add(0x350);
-            Offsets.Add(0x1A0);
-            Offsets.Add(0xC);
-            return MemHelper.ReadString(NeteaseMusicProcess.Handle, NeteaseMusicDLL.BaseAddress.ToInt64(), Offsets);
-        }
-        private int ReadPlayTime()
-        {
-            //准备指针偏移
-            List<Int64> Offsets = new List<Int64>();
-            Offsets.Add(0x002BAE48);
-            Offsets.Add(0x8);
-            Offsets.Add(0x10);
-            Offsets.Add(0x50);
-            Offsets.Add(0x0);
-            Offsets.Add(0x28);
-            return MemHelper.ReadInt(NeteaseMusicProcess.Handle, NeteaseMusicDLL.BaseAddress.ToInt64(), Offsets);
-        }
-
-        private double ReadEndTime()
-        {
-            //准备指针偏移
-            List<Int64> Offsets = new List<Int64>();
-            Offsets.Add(0x00B0B838);
-            Offsets.Add(0x158);
-            Offsets.Add(0x8);
-            Offsets.Add(0x0);
-            Offsets.Add(0x108);
-            Offsets.Add(0x28);
-            return MemHelper.ReadDouble(NeteaseMusicProcess.Handle, NeteaseMusicDLL.BaseAddress.ToInt64(), Offsets);
-        }
-
-        #endregion
-
+        /// <summary>
+        /// 歌词拖动
+        /// </summary>
         private void window_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if (e.LeftButton == MouseButtonState.Pressed)
