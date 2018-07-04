@@ -18,6 +18,7 @@ Desktop lyrics for NeteaseMusic UWP
 * 皮肤调整
 * 设置保存
 * 优化歌词同步算法
+* x86环境兼容
 
 ## 2018.07.04 V0.2
 
