@@ -13,12 +13,20 @@ Desktop lyrics for NeteaseMusic UWP
 
 通过`当前歌词和下句歌词的时间差`与`当前时间`计算歌词滚动。
 
+## 已知问题 
+
+* 因操作系统环境和`Windows.Media.BackgroundPlayback.exe`文件版本不同，不能全面兼容win10，待适配。
+
 ## 待改进
 
 * 皮肤调整
 * 设置保存
 * 优化歌词同步算法
 * x86环境兼容
+
+## 已适配操作系统版本
+
+* Windows 10 Education x64 10.0.17134.137 （文件版本 10.0.17134.1 SHA1 B5A662879F854934CBD65DB995660807EEE6738A）
 
 ## 2018.07.04 V0.2
 
